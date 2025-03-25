@@ -1,0 +1,95 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title> -->
+    <!-- Tailwind CSS CDN -->
+    <!-- <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100"> -->
+
+    <!-- Login Form -->
+    <!-- <div class="min-h-screen flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Login</h2>
+            <form method="POST" action="">
+                {% csrf_token %} -->
+
+                <!-- Email Input -->
+                <!-- <div class="mb-4">
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="email" name="email" class="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div> -->
+
+                <!-- Password Input -->
+                <!-- <div class="mb-4">
+                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="password" name="password" class="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div> -->
+
+                <!-- Submit Button -->
+                <!-- <div class="mt-6">
+                    <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Login
+                    </button>
+                </div>
+            </form> -->
+
+            <!-- Register Link -->
+            <!-- <p class="mt-4 text-center text-sm text-gray-600">Don't have an account? <a href="{% url 'register' %}" class="text-blue-500 hover:text-blue-600">Register here</a></p>
+        </div>
+    </div>
+
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Add the Spline viewer script here -->
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.59/build/spline-viewer.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="flex min-h-screen items-center justify-center bg-gray-100 ">
+        <!-- Swapped the order of the divs -->
+        <div class="w-full lg:w-1/2 h-screen bg-white flex justify-center items-center p-12 overflow-y-auto">
+            <div class="w-full max-w-md">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Sign In</h2>
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="email" name="email" class="mt-1 p-3 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black-500" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="password" name="password" class="mt-1 p-3 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black-500" required>
+                    </div>
+                    <div class="mt-6">
+                        <button type="submit"  class="w-full bg-black text-white py-3 px-4 rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black transform hover:scale-105 transition duration-300">Login</button>
+                    </div>
+                </form>
+                <p class="mt-4 text-center text-sm text-gray-600">
+                    Don't have an account? <a href="{% url 'register' %}" class="text-blue-500 hover:text-blue-600">Register here</a>
+                </p>
+            </div>
+        </div>
+
+        <div class="hidden lg:flex flex-col justify-center items-center w-1/2 h-screen relative bg-black text-white p-12 overflow-y-auto">
+            <!-- Add the spline-viewer element here with the new URL -->
+            <spline-viewer url="https://prod.spline.design/qpkkf6YHiguirgdd/scene.splinecode" class="absolute inset-0 z-0"></spline-viewer>
+            <!-- <h1 class="relative z-10 text-4xl font-bold mb-4">Welcome to Tic Talk!</h1>
+            <p class="relative z-10 text-gray-400 text-lg mb-6">
+                Your personal AI tutor for improving your communication skills.
+            </p> -->
+            <!-- <button class="relative z-10 bg-white text-black px-6 py-2 rounded-lg font-medium hover:bg-gray-200">
+                Know More
+            </button> -->
+        </div>
+    </div>
+</body>
+</html>

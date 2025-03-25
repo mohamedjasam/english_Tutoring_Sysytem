@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Analysis Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Error Highlighting */
+        .error-line {
+            text-decoration: underline wavy red;
+            text-decoration-thickness: 2px;
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Tooltip Styling */
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 320px;
+            background: #333;
+            color: #fff;
+            text-align: left;
+            border-radius: 4px;
+            padding: 12px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -160px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold text-blue-600 mb-8">Analysis Report</h1>
+
+        <!-- Original Text Section -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Original Text</h2>
+            <div id="original-text" class="text-gray-800 space-y-2"></div>
+        </div>
+
+        <!-- Corrected Text Section -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Corrected Text</h2>
+            <div id="corrected-text" class="text-gray-800 space-y-2"></div>
+        </div>
+
+        <script>
+            // Utility function to get CSRF token from cookies
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            const csrftoken = getCookie('csrftoken');
+
+            // Main script to fetch analysis data and render it
+            window.onload = async function () {
+                try {
+                    // Retrieve transcription from localStorage
+                    const transcription = localStorage.getItem("transcription");
+                    if (!transcription || transcription.trim() === "") {
+                        alert("No transcription data found.");
+                        return;
+                    }
+
+                    // Fetch analysis results from the backend
+                    const response = await fetch('/analyze_grammar/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        },
+                        body: JSON.stringify({ text: transcription })
+                    });
+
+                    // Handle non-200 responses
+                    if (!response.ok) {
+                        throw new Error(`Network error: ${response.status}`);
+                    }
+
+                    // Parse the JSON response
+                    const data = await response.json();
+                    const analysis = data?.grammar_analysis || [];
+
+                    // Get containers for original and corrected text
+                    const originalContainer = document.getElementById('original-text');
+                    const correctedContainer = document.getElementById('corrected-text');
+
+                    // Clear previous content
+                    originalContainer.innerHTML = '';
+                    correctedContainer.innerHTML = '';
+
+                    // Render each sentence
+                    if (analysis.length === 0) {
+                        originalContainer.innerHTML = '<p class="text-gray-600">No errors detected!</p>';
+                        correctedContainer.innerHTML = `<p>${transcription}</p>`;
+                        return;
+                    }
+
+                    analysis.forEach(item => {
+                        // Render original text with error highlighting
+                        const originalDiv = document.createElement('div');
+                        originalDiv.className = 'mb-2';
+
+                        if (item.has_error) {
+                            originalDiv.innerHTML = `
+                                <span class="error-line tooltip">
+                                    ${item.original_text}
+                                    <span class="tooltiptext">
+                                        <strong>Error detected</strong><br>
+                                        Suggested correction: 
+                                        <span class="text-green-400">${item.corrected_text}</span><br>
+                                        <strong>Formal suggestion:</strong> ${item.suggestions?.enhanced || 'N/A'}<br>
+                                        <strong>Casual suggestion:</strong> ${item.suggestions?.native || 'N/A'}
+                                    </span>
+                                </span>
+                            `;
+                        } else {
+                            originalDiv.textContent = item.original_text;
+                        }
+                        originalContainer.appendChild(originalDiv);
+
+                        // Render corrected text
+                        const correctedDiv = document.createElement('div');
+                        correctedDiv.className = 'mb-2';
+                        correctedDiv.textContent = item.corrected_text;
+                        correctedContainer.appendChild(correctedDiv);
+                    });
+
+                } catch (error) {
+                    console.error('Error analyzing grammar:', error);
+                    alert('Error analyzing text. Showing raw transcription.');
+                    document.getElementById('original-text').textContent = transcription || "No transcription available";
+                    document.getElementById('corrected-text').textContent = transcription || "No transcription available";
+                }
+            };
+        </script>
+    </div>
+</body>
+</html>

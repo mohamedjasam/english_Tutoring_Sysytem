@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idioms and Phrase Generator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #a1c4fd, #c2e9fb, #fbc2eb, #a6c1ee);
+            text-align: center;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: #222;
+        }
+        .input-box {
+            margin-top: 30px;
+            text-align: center;
+        }
+        textarea {
+            width: 80%;
+            max-width: 600px;
+            height: 120px;
+            font-size: 16px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            resize: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            margin-top: 20px;
+            padding: 12px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            margin: 0 10px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .response {
+            margin-top: 30px;
+            font-size: 18px;
+            color: #333;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left;
+        }
+        .loading {
+            display: none;
+            margin-top: 20px;
+            font-size: 16px;
+            color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+    <h1>Idioms and Phrase Generator</h1>
+    <div class="input-box">
+        <textarea id="userInput" placeholder="Write here..."></textarea><br>
+        <button onclick="generateIdioms()">Generate Idioms/Phrases</button>
+        <button onclick="regenerateIdioms()">Regenerate</button>
+    </div>
+    <div id="loading" class="loading">Generating... Please wait.</div>
+    <div id="response" class="response"></div>
+    <script>
+        let lastUserInput = ""; // Store the last user input for regeneration
+
+        // Function to fetch idioms/phrases from the backend
+        async function fetchIdioms(userInput) {
+            const responseDiv = document.getElementById("response");
+            const loadingDiv = document.getElementById("loading");
+
+            // Show loading indicator
+            loadingDiv.style.display = "block";
+            responseDiv.innerHTML = "";
+
+            try {
+                const response = await fetch("/generate_idioms_phrases/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCookie("csrftoken"), // Include CSRF token
+                    },
+                    body: JSON.stringify({ message: userInput }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (data.idioms_and_phrases) {
+                    responseDiv.innerHTML = `<strong>Modified Sentence:</strong> ${data.idioms_and_phrases}`;
+                } else if (data.error) {
+                    responseDiv.innerHTML = `<strong>Error:</strong> ${data.error}`;
+                }
+            } catch (error) {
+                responseDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
+                console.error("Fetch error:", error);
+            } finally {
+                // Hide loading indicator
+                loadingDiv.style.display = "none";
+            }
+        }
+
+        // Function to generate idioms/phrases
+        function generateIdioms() {
+            const userInput = document.getElementById("userInput").value;
+            if (!userInput.trim()) {
+                document.getElementById("response").innerHTML = "Please enter a valid sentence.";
+                return;
+            }
+            lastUserInput = userInput; // Store the input for regeneration
+            fetchIdioms(userInput);
+        }
+
+        // Function to regenerate idioms/phrases
+        function regenerateIdioms() {
+            if (!lastUserInput.trim()) {
+                document.getElementById("response").innerHTML = "Please generate an idiom first.";
+                return;
+            }
+            fetchIdioms(lastUserInput); // Use the stored input for regeneration
+        }
+
+        // Function to get CSRF token from cookies
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== "") {
+                const cookies = document.cookie.split(";");
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + "=")) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

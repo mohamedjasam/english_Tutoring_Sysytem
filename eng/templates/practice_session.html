@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Practice Session</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --primary-color: #14413f;
+      --secondary-color: #1F2833;
+      --accent-color: #6966fc;
+    }
+  </style>
+</head>
+<body class="bg-[var(--primary-color)] flex items-center justify-center min-h-screen">
+  <div class="w-full max-w-lg p-6 flex flex-col justify-between h-full">
+    <!-- Random Word Generator Box -->
+    <div class="bg-white rounded-3xl shadow-lg p-6">
+      <h1 class="text-2xl font-bold text-center text-[var(--primary-color)] mb-4">
+        Random Word Generator
+      </h1>
+      <div class="flex flex-col items-center">
+        <!-- Display Generated Word -->
+        <div id="word-display" class="text-lg font-small bg-[var(--secondary-color)] text-white py-3 px-6 rounded-lg shadow mb-6">
+          <h5 style="opacity: 0.4;">Word will appear here.....</h5>
+        </div>```
+        <!-- Generate Button -->
+        <button
+          onclick="generateWord()"
+          class="px-6 py-2 text-white bg-[var(--accent-color)] rounded-lg hover:bg-[#ff5733] transition duration-300">
+          Generate
+        </button>
+      </div>
+    </div>
+
+    <!-- Proceed Button -->
+    <div class="flex justify-center mt-6">
+      <a href="/random/" class="px-6 py-2 text-white bg-[#005f00] rounded-lg hover:bg-[#005f00] transition duration-300">
+        Proceed
+      </a>
+    </div>
+  </div>
+
+  <script>
+    function generateWord() {
+      const words = ["Movies: Talk about a movie that inspired you and why." , "Health: Explain the benefits of a balanced diet and regular exercise." ,"Books: Talk about a book that left a lasting impression on you." , "Hobbies: Explain your favorite hobby and how it benefits you","Education: Discuss the importance of lifelong learning."  , "Travel: Share your favorite travel destination and why you love it." , "Technology: Talk about how technology has changed communication in the past decade."];
+      const randomWord = words[Math.floor(Math.random() * words.length)];
+      document.getElementById("word-display").innerText = randomWord;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Word Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Existing styles remain unchanged */
+    </style>
+</head>
+<body class="bg-[var(--primary-color)] flex flex-col items-center justify-center min-h-screen p-6">
+    <!-- Main Container -->
+    <div class="w-full max-w-2xl sm:max-w-xl md:max-w-2xl rounded-3xl shadow-lg p-8 mx-auto text-white gradient-bg">
+        <!-- Heading -->
+        <h1 class="text-4xl font-extrabold text-center mb-8">
+            Random Word Generator
+        </h1>
+
+        <!-- Transcription Field -->
+        <div class="mb-8">
+            <textarea
+                id="transcription"
+                rows="5"
+                class="w-full p-4 border rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] text-black"
+                placeholder="Your transcription will appear here..."
+                readonly></textarea>
+        </div>
+
+        <!-- Manual Input Field -->
+        <div class="mb-8">
+            <textarea
+                id="manualInput"
+                rows="3"
+                class="w-full p-4 border rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] text-black"
+                placeholder="Type or paste text here for manual analysis..."></textarea>
+        </div>
+
+        <!-- Analyze Button -->
+        <div class="flex justify-center">
+            <button
+                onclick="analyzeTextAndNavigate()"
+                class="px-8 py-4 text-xl text-white bg-[#49c5b6] rounded-lg hover:bg-[#005f00] transition duration-300 shadow-md">
+                Analyze Text
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Existing functions remain unchanged
+
+        // Function to analyze text and navigate to report page
+        function analyzeTextAndNavigate() {
+            const transcriptionField = document.getElementById("transcription");
+            const manualInputField = document.getElementById("manualInput");
+
+            // Prioritize manual input if provided
+            let finalText = manualInputField.value.trim();
+            if (!finalText) {
+                finalText = transcriptionField.value.trim();
+            }
+
+            if (!finalText) {
+                alert("No text found. Please record or type something first.");
+                return;
+            }
+
+            // Save the final text to local storage before navigating
+            localStorage.setItem("transcription", finalText);
+
+            // Navigate to the report page
+            window.location.href = "/report/";
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learna AI Home Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent scrollbars due to Spline */
+            background-color: #000; /* Solid black background */
+        }
+        .spline-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Ensure it stays in the background */
+            transform: scale(1.15);
+        }
+        .menu-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent black */
+            backdrop-filter: blur(10px); /* Frosted glass effect */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            z-index: 10; /* Above the spline background */
+            border-bottom: 1px solid #bb86fc; /* Accent border */
+        }
+        .menu-bar a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 1rem;
+            margin: 0 10px;
+            transition: color 0.3s ease-in-out;
+        }
+        .menu-bar a:hover {
+            color: #bb86fc; /* Accent color on hover */
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.9); /* Dark background */
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            border: 1px solid #bb86fc; /* Accent border */
+            border-radius: 8px;
+            top: 100%; /* Position below the main menu item */
+            left: 0;
+        }
+        .dropdown-content a {
+            color: #e0e0e0;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s ease-in-out;
+        }
+        .dropdown-content a:hover {
+            background-color: #bb86fc; /* Accent color on hover */
+            color: #121212;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .button-section {
+            position: fixed;
+            top: 50%; /* Center vertically */
+            transform: translateY(-50%); /* Adjust for exact vertical centering */
+            width: 45%; /* Width of the button section */
+            max-width: 300px; /* Maximum width */
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white */
+            border: 2px solid #bb86fc; /* Accent border */
+            color: #e0e0e0; /* Light text */
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+            border-radius: 16px; /* Rounded corners */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Subtle shadow */
+        }
+        .button-section:hover {
+            background-color: rgba(255, 255, 255, 0.2); /* Slightly brighter on hover */
+            transform: translateY(-50%) scale(1.02); /* Maintain vertical centering with scaling effect */
+        }
+        .button-section a {
+            text-decoration: none;
+            color: inherit;
+        }
+        .left-centre {
+            left: 70px; /* Position at the center-left */
+        }
+        .right-centre {
+            right: 70px; /* Position at the center-right */
+        }
+        .call-to-action {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .call-to-action-primary {
+            background: linear-gradient(to right,#bb86fc, #95326D);
+            color: #fff;
+        }
+        .call-to-action-secondary {
+            background: #bb86fc;
+            color: #121212;
+        }
+    </style>
+</head>
+<body>
+    <!-- Spline 3D Background -->
+    <spline-viewer class="spline-background" url="https://prod.spline.design/EhoW4U-wWomHrsB0/scene.splinecode"></spline-viewer>
+    
+    <!-- Menu Bar -->
+    <div class="menu-bar">
+        <div>
+            <a href="/home/" class="dark-hover">Home</a>
+            <a href="/profile/" class="dark-hover">Profile</a>
+            <a href="/feedback/" class="dark-hover">Feedback</a>
+            <div class="dropdown">
+                <a href="#" class="dark-hover">More Learning</a>
+                <div class="dropdown-content">
+                    <a href="/idioms/">Idioms Generator</a>
+                    <a href="/practice_session/">Random Word Generator</a>
+                </div>
+            </div>
+        </div>
+        <div>
+            <a href="/logout/" class="dark-hover">Logout</a>
+        </div>
+    </div>
+
+    <!-- Active Learners Button (Center Left) -->
+    <div class="button-section left-centre rounded-card shadow-effect text-center">
+        <div class="text-xl font-semibold mb-4 dark-text">4,000,000+ Active Learners</div>
+        <p class="dark-text">Connect with Real People</p>
+        <a href="/call/" class="call-to-action call-to-action-secondary">Practice Now</a>
+    </div>
+
+    <!-- AI Tutor Button (Center Right) -->
+    <div class="button-section right-centre rounded-card shadow-effect text-center">
+        <div class="text-xl font-semibold mb-4 dark-text">AI-Powered English Tutor</div>
+        <p class="dark-text">ARYA Personal Teacher</p>
+        <a href="/select_topic/" class="call-to-action call-to-action-primary">Let's get started</a>
+    </div>
+
+    <!-- Spline Viewer Script -->
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.59/build/spline-viewer.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>

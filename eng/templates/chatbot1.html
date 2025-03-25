@@ -1,0 +1,802 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;700&display=swap" rel="stylesheet">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hobbies</title>
+    <script src="{% static 'js/sample.js' %}"></script> <!-- Ensure this points to the correct JS file -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/posenet"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-detection"></script>
+    <style>
+        :root {
+            --bg-color: #081b29;
+            --second-bg-color: #112e42;
+            --text-color: #ededed;
+            --main-color: #00abf0;
+        }
+
+        /* Background gradient for the section */
+        .about {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 2rem;
+            position: relative;
+            height: 100vh;
+            background: linear-gradient(135deg, #a315dc, #1a237e, rgb(59, 170, 218)); /* Adjust colors as needed */
+            color: #fff; /* Ensures text contrasts well */
+        }
+
+        /* Add box-shadow to the circle for a glowing effect */
+        .about-img {
+            position: relative;
+            width: 30rem;
+            height: 30rem;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            margin: 0 auto;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); /* Glowing effect */
+        }
+
+        /* Keep the rest of the styles for video and spin */
+        .about-img video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 0.2rem solid rgba(255, 255, 255, 0.7);
+        }
+
+        .about-img .circle-spin {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border-top: 0.2rem solid rgba(255, 255, 255, 0.2);
+            border-bottom: 0.2rem solid rgba(255, 255, 255, 0.2);
+            border-left: 0.2rem solid rgb(0, 229, 255);
+            border-right: 0.2rem solid rgb(0, 229, 255);
+            animation: spinAnimation 3s linear infinite;
+        }
+
+        /* General styling for the app container */
+        .app-container {
+            text-align: center;
+            color: white;
+            font-family: 'Poppins', sans-serif; /* Ensure to include this font in your project */
+        }
+
+        /* Title styling */
+        .app-title {
+            position: absolute; /* Position it outside normal flow */
+            top: 100px; /* Adjust top position */
+            left: 100px; /* Align to the left */
+            font-size: 36px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            letter-spacing: 2px;
+            color: white;
+            margin: 0;
+        }
+
+        /* Subtitle styling */
+        .app-subtitle {
+            margin-top: 10px;
+            font-size: 24px;
+            font-weight: 400;
+            color: #ccc; /* Subtle color difference */
+            text-transform: capitalize;
+        }
+
+        /* Chat section styling */
+        .chat-section {
+            margin: 50px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Textarea styling */
+        textarea#messageInput {
+            width: 90%;
+            height: 60px;
+            padding: 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1); /* Slight transparency for the background */
+            color: white;
+            resize: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Buttons container styling */
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        /* Button styling */
+        .btn {
+            font-size: 16px;
+            padding: 10px 30px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .btn.start {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn.stop {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn:disabled {
+            background-color: #999;
+            cursor: not-allowed;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+
+        .label {
+            font-size: 0.8rem;
+            margin-bottom: 2px;
+            color: #cccccc;
+        }
+
+        .bot-label {
+            align-self: flex-start;
+            margin-left: 10px;
+        }
+
+        .user-label {
+            align-self: flex-end;
+            margin-right: 10px;
+        }
+
+        /* Keyframe animation for spinning */
+        @keyframes spinAnimation {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to bottom, #4c00c9, #22007e);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        } */
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: #1a1a1a;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        h2 {
+            text-align: center;
+            background: #333;
+            margin: 0;
+            padding: 15px;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .avatar-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .avatar-container {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 6px solid #007bff;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 15px #007bff, 0 0 30px #007bff;
+        }
+
+        .avatar-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Chatbox styling with futuristic glass-like effect */
+        .chatbox {
+            position: absolute; /* Position it outside normal flow */
+            top: 200px; /* Adjust top position */
+            left: 150px; /* Align to the left */
+            height: 600px;
+            overflow-y: auto;
+            width: 300px;
+            margin: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1); /* Transparent white */
+            border-radius: 20px; /* Rounded corners */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            backdrop-filter: blur(10px); /* Frosted glass effect */
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle border */
+            justify-content: flex-start;
+        }
+
+        /* Styling for individual messages */
+        .message {
+            margin: 2px 0;
+            max-width: 80%;
+            padding: 10px;
+            border-radius: 10px;
+            word-wrap: break-word;
+            font-size: 1rem;
+            margin: 10px 0 20px 0;
+            font-family: 'Rajdhani', sans-serif; /* Futuristic font */
+            color: black;
+            position: relative;
+            text-shadow: 0 0 3px rgba(255, 255, 255, 0.6);
+        }
+
+        /* User message styling */
+        .user-message {
+            align-self: flex-end;
+            background: rgb(250, 250, 250); /* Green with some transparency */
+            box-shadow: 0 4px 10px rgb(232, 235, 232); /* Glow effect */
+        }
+
+        /* Bot message styling */
+        .bot-message {
+            align-self: flex-start;
+            background: rgba(255, 255, 102, 0.904); /* Blue with some transparency */
+            box-shadow: 0 4px 10px rgb(255, 255, 63); /* Glow effect */
+        }
+
+        /* Scrollbar styling */
+        .chatbox::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chatbox::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .chatbox::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: .3s;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        button:disabled {
+            background: #444;
+            cursor: not-allowed;
+        }
+
+        textarea {
+            width: 50%;
+            margin: 10px auto;
+            height: 50px;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            resize: none;
+            background: #222;
+            color: white;
+            display: block;
+        }
+        .posture-warning {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 87, 87, 0.9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 0 15px rgba(255, 87, 87, 0.7);
+            animation: pulse 1.5s infinite;
+            display: none;
+            text-align: center;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 15px rgba(255, 87, 87, 0.7); }
+            50% { box-shadow: 0 0 25px rgba(255, 87, 87, 0.9); }
+            100% { box-shadow: 0 0 15px rgba(255, 87, 87, 0.7); }
+        }
+        
+        #webcam-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 160px;
+            height: 120px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #00abf0;
+            box-shadow: 0 0 10px rgba(0, 171, 240, 0.5);
+            z-index: 999;
+        }
+        
+        #webcam {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* Posture status indicator */
+        .posture-status {
+            position: fixed;
+            bottom: 150px;
+            right: 20px;
+            width: 160px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+            font-family: 'Rajdhani', sans-serif;
+            text-align: center;
+            z-index: 997;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-good {
+            background-color: #4CAF50;
+        }
+        
+        .status-bad {
+            background-color: #F44336;
+        }
+        
+    </style>
+</head>
+<body>
+    <section class="about" id="about"> 
+        <div class="title-section">
+            <h1 class="app-title">Your English Tutor - Movies</h1>
+        </div>
+        <div class="about-img">
+            <video id="avatarVideo" muted loop autoplay>
+                <source src="{% static 'img/avatar2.mp4' %}" type="video/mp4">
+            </video>
+            <span class="circle-spin"></span>
+        </div>
+        <div class="app-container">
+            <div class="chat-section">
+                <textarea id="messageInput" placeholder="Converted text will appear here..." readonly></textarea>
+                <div class="control-buttons">
+                    <button id="startRecord" class="btn start">Start Recording</button>
+                    <button id="sendMessage" disabled>Send Message</button>
+                    <button id="stopRecord" class="btn stop" disabled>Stop Recording</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="app" data-topic="movies"> <!-- Change "strangers" dynamically -->
+            <div class="chatbox" id="chatbox">
+                <div class="message bot-message">Let's talk about Movies! Do you enjoy watching movies?</div>
+            </div>
+        </div>
+        <div id="postureWarning" class="posture-warning">
+            Warning: Please look at the screen!<br>
+            <span style="font-size: 14px; font-weight: normal;">Keep your head up and maintain eye level with the screen</span>
+        </div>
+        
+        <!-- Webcam container for face detection -->
+        <div id="webcam-container">
+            <video id="webcam" autoplay playsinline></video>
+        </div>
+        
+        <!-- Posture status indicator -->
+        <div class="posture-status">
+            <span class="status-indicator" id="statusIndicator"></span>
+            <span id="statusText">Starting...</span>
+        </div>
+    </section>
+
+    <script>
+        let recognition;
+        let isRecording = false;
+        const avatarVideo = document.getElementById('avatarVideo');
+
+        // Speech Recognition Setup
+        function initSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window) {
+                recognition = new webkitSpeechRecognition();
+                recognition.lang = 'en-US';
+                recognition.interimResults = true;
+                recognition.onstart = () => {
+                    isRecording = true;
+                    console.log("Speech recognition started.");
+                    toggleRecording(true);
+                };
+                recognition.onend = () => {
+                    isRecording = false;
+                    console.log("Speech recognition stopped.");
+                    toggleRecording(false);
+                };
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    console.log("Captured speech:", transcript);  // Debugging log
+                    document.getElementById('messageInput').value = transcript;
+                    document.getElementById('sendMessage').disabled = false;
+                };
+                recognition.onerror = (event) => {
+                    console.error("Speech recognition error:", event.error);
+                };
+            } else {
+                alert("Speech recognition is not supported in this browser.");
+            }
+        }
+
+        function toggleRecording(isRecording) {
+            document.getElementById('startRecord').disabled = isRecording;
+            document.getElementById('stopRecord').disabled = !isRecording;
+            if (isRecording) {
+                avatarVideo.play(); // Avatar animation starts
+            } else {
+                avatarVideo.pause();
+                avatarVideo.currentTime = 0; // Reset animation
+            }
+        }
+
+        document.getElementById('startRecord').addEventListener('click', () => {
+            initSpeechRecognition();
+            recognition.start();
+        });
+
+        document.getElementById('stopRecord').addEventListener('click', () => {
+            recognition.stop();
+        });
+
+        document.getElementById('sendMessage').addEventListener('click', () => {
+            const text = document.getElementById('messageInput').value;
+            console.log("Sending message to Django:", text);  // Debugging log
+            appendMessage('User', text, 'user-message');
+            sendTextToDjango(text);
+        });
+
+        function sendTextToDjango(text) {
+    const topic = document.getElementById('app').getAttribute('data-topic'); // Get the topic
+    fetch(`/process_voice/${topic}/`, {  // Include the topic in the URL
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: text })
+    })
+    .then(response => {
+        if (!response.ok) {
+            console.error("Server returned an error:", response.status);
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Response from Django:", data);  // Debugging log
+        if (data.response) {
+            appendMessage('Bot', data.response, 'bot-message');
+            playAudioWithAvatar(data.audio_url);
+        } else {
+            console.error("Error in response:", data.error);
+        }
+    })
+    .catch(error => console.error("Error:", error));
+}
+
+// Dynamically set the topic
+function selectTopic(topic) {
+    document.getElementById('app').setAttribute('data-topic', topic);
+
+    // Update the initial bot message based on the topic
+    const chatbox = document.getElementById('chatbox');
+    chatbox.innerHTML = '';  // Clear previous messages
+    let initialMessage = '';
+    if (topic === 'strangers') {
+        initialMessage = 'Hello! Let\'s practice talking to strangers. How would you introduce yourself?';
+    } else if (topic === 'movies') {
+        initialMessage = 'Hello! Let\'s talk about movies. What\'s your favorite movie?';
+    } else if (topic === 'hobbies') {
+        initialMessage = 'Hello! Let\'s talk about hobbies. What do you like to do in your free time?';
+    } else {
+        initialMessage = 'Hello! Let\'s have a general conversation. Tell me something interesting.';
+    }
+
+    // Append the initial bot message
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message bot-message';
+    messageDiv.innerText = initialMessage;
+    chatbox.appendChild(messageDiv);
+}
+        function appendMessage(sender, message, className) {
+            const chatbox = document.getElementById('chatbox');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${className}`;
+            messageDiv.innerText = message;
+            chatbox.appendChild(messageDiv);
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        function playAudioWithAvatar(audio_url) {
+            console.log("Playing audio from URL:", audio_url);  // Debugging log
+            const audio = new Audio(audio_url);
+            avatarVideo.play();
+            audio.play();
+            audio.onended = () => {
+                console.log("Audio playback ended.");  // Debugging log
+                avatarVideo.pause();
+                avatarVideo.currentTime = 0; // Reset to start
+            };
+        }
+
+        // Greeting when the page loads
+        window.onload = () => {
+            const utterance = new SpeechSynthesisUtterance("Let's talk about Movies! Do you enjoy watching movies?");
+            window.speechSynthesis.speak(utterance);
+        };
+        let faceDetector;
+        let video;
+        let warningDisplayed = false;
+        let badPostureCounter = 0;
+        let goodPostureCounter = 0;
+        let lastUpdate = 0;
+        
+        // Initialize face detection
+        async function initFaceDetection() {
+            try {
+                const model = faceDetection.SupportedModels.MediaPipeFaceDetector;
+                const detectorConfig = {
+                    runtime: 'tfjs',
+                    maxFaces: 1,
+                    // Enable keypoints for orientation detection
+                    detectionConfidence: 0.8 // Increase confidence for better accuracy
+                };
+                faceDetector = await faceDetection.createDetector(model, detectorConfig);
+
+                video = document.getElementById('webcam');
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { 
+                        width: 640, 
+                        height: 320,
+                        facingMode: 'user'
+                    }
+                });
+                
+                video.srcObject = stream;
+                
+                video.onloadeddata = () => {
+                    detectFacesInRealTime();
+                    updateStatus("Checking...", null);
+                };
+            } catch (error) {
+                console.error("Error initializing face detection:", error);
+                updateStatus("Camera error", false);
+            }
+        }
+        
+        // Continuously detect faces
+        async function detectFacesInRealTime() {
+            async function detectionFrame() {
+                if (!video || !faceDetector) return;
+
+                try {
+                    const faces = await faceDetector.estimateFaces(video);
+                    checkFacePosition(faces);
+                } catch (error) {
+                    console.error("Error in face detection:", error);
+                }
+
+                requestAnimationFrame(detectionFrame);
+            }
+
+            detectionFrame();
+        }
+        
+        // Check if user is looking at screen based on face position
+        function checkFacePosition(faces) {
+            const videoHeight = video.offsetHeight;
+            const videoWidth = video.offsetWidth;
+
+            // Safeguard: Ensure video dimensions are valid
+            if (!videoHeight || !videoWidth || videoHeight === 0 || videoWidth === 0) {
+                console.log("Invalid video dimensions:", videoWidth, videoHeight);
+                updateStatus("Camera not ready", null);
+                return;
+            }
+
+            if (!faces || faces.length === 0) {
+                updateStatus("Bad posture", null);
+                return;
+            }
+
+            const face = faces[0];
+            const box = face.box;
+            const keypoints = face.keypoints; // Get facial keypoints (eyes, nose, etc.)
+            console.log('j',keypoints)
+
+            // Prevent NaN by validating box properties
+            if (!box || typeof box.yCenter !== 'number') {
+                console.log("Invalid box data:", box);
+                updateStatus("Good Posture", null);
+                return;
+            }
+
+            // Calculate vertical position (normalized 0 to 1)
+            const faceVerticalPosition = box.yCenter / videoHeight;
+            console.log('Face vertical position:', faceVerticalPosition);
+
+            // Find eye keypoints for orientation (MediaPipe labels: 'leftEye', 'rightEye')
+            const leftEye = keypoints.find(kp => kp.name === 'leftEye');
+            const rightEye = keypoints.find(kp => kp.name === 'rightEye');
+            const nose = keypoints.find(kp => kp.name === 'nose');
+
+            let isLookingAtScreen = false;
+
+            if (leftEye && rightEye && nose) {
+                // Calculate eye level difference to detect head tilt
+                const eyeYDiff = Math.abs(leftEye.y - rightEye.y);
+                const eyeNoseDiff = (leftEye.y + rightEye.y) / 2 - nose.y; // Vertical distance between eyes and nose
+
+                // Log for debugging
+                console.log('Eye Y diff (tilt):', eyeYDiff);
+                console.log('Eye-Nose diff (pitch):', eyeNoseDiff);
+
+                // Conditions for "looking at screen":
+                // 1. Face is in the upper 50% of the frame (adjustable threshold)
+                // 2. Head isn’t tilted too much (eyeYDiff small)
+                // 3. Head isn’t pitched down (eyes above nose)
+                const positionOK = faceVerticalPosition < 0.5; // Top half of frame
+                const tiltOK = eyeYDiff < 10; // Less than 10px difference (adjust based on testing)
+                const pitchOK = eyeNoseDiff > 0; // Eyes above nose (not looking down)
+
+                isLookingAtScreen = positionOK && tiltOK && pitchOK;
+
+                console.log('Position OK:', positionOK, 'Tilt OK:', tiltOK, 'Pitch OK:', pitchOK);
+            } else {
+                // Fallback to position-only check if keypoints are unavailable
+                isLookingAtScreen = faceVerticalPosition < 0.5;
+                console.log("Keypoints missing, using position only:", isLookingAtScreen);
+            }
+
+            // Update counters for stability
+            if (isLookingAtScreen) {
+                goodPostureCounter++;
+                badPostureCounter = 0;
+            } else {
+                badPostureCounter++;
+                goodPostureCounter = 0;
+            }
+
+            // Update UI every 500ms
+            const now = Date.now();
+            if (now - lastUpdate > 500) {
+                const persistentGoodPosture = goodPostureCounter > 5;
+                const persistentBadPosture = badPostureCounter > 5;
+
+                if (persistentBadPosture) {
+                    updateStatus("Bad posture", false);
+                    updateWarning(true);
+                } else if (persistentGoodPosture) {
+                    updateStatus("Good posture", true);
+                    updateWarning(false);
+                }
+
+                lastUpdate = now;
+            }
+        }
+        
+        // Update warning display
+        function updateWarning(show) {
+            const warningElement = document.getElementById('postureWarning');
+            
+            if (show && !warningDisplayed) {
+                warningElement.style.display = 'block';
+                warningDisplayed = true;
+            } else if (!show && warningDisplayed) {
+                warningElement.style.display = 'none';
+                warningDisplayed = false;
+            }
+        }
+        
+        // Update status indicator
+        function updateStatus(status, isGood) {
+            const statusIndicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            
+            statusText.textContent = status;
+            
+            if (isGood === null) {
+                // Neutral state
+                statusIndicator.className = 'status-indicator';
+                statusIndicator.style.backgroundColor = '#888';
+            } else {
+                statusIndicator.className = 'status-indicator ' + (isGood ? 'status-good' : 'status-bad');
+            }
+        }
+        
+        // Start everything when page loads
+        window.addEventListener('load', () => {
+            // Your existing onload code
+            const utterance = new SpeechSynthesisUtterance("Let's talk about Movies! Do you enjoy watching movies?");
+            window.speechSynthesis.speak(utterance);
+            
+            // Initialize face detection for posture monitoring
+            initFaceDetection().catch(err => {
+                console.error("Error initializing face detection:", err);
+                updateStatus("Error", false);
+            });
+        });
+        
+    </script>
+</body>
+</html>
