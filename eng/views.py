@@ -617,15 +617,11 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from .models import UserReg, Feedback
 
-
-
 import csv
 from transformers import AutoTokenizer, AutoModelForCausalLM
-
 # Load Conversational Model
 tokenizer = AutoTokenizer.from_pretrained("microsoft/DialoGPT-medium")
 model = AutoModelForCausalLM.from_pretrained("microsoft/DialoGPT-medium")
-
 # Load CSV data
 def load_csv(file_path):
     data = {}
@@ -636,9 +632,7 @@ def load_csv(file_path):
             answer = row["Answer"].strip()
             data[question] = answer
     return data
-
 csv_data = load_csv("data.csv")
-
 # Bot Logic
 def get_bot_response(user_input):
     user_input = user_input.lower().strip()
@@ -646,7 +640,6 @@ def get_bot_response(user_input):
     # Step 1: CSV Match
     if user_input in responses:
         return responses[user_input]["response"]
-
     # Step 2: Transformer Model Response
     try:
         inputs = tokenizer.encode(user_input + tokenizer.eos_token, return_tensors="pt")
@@ -675,9 +668,6 @@ def get_bot_response(user_input):
 #     if user_input.lower() in ["exit", "quit"]:
 #         break
 #     print(f"Bot: {get_bot_response(user_input)}")
-
-
-
 
 # Ensure NLTK resources are downloaded
 nltk.download('punkt')
@@ -746,8 +736,6 @@ def process_voice(request):
         except Exception as e:
             print(f"Error processing voice: {e}")
             return JsonResponse({'response': "An error occurred, please try again."})
-
-
 
             # talk about movies section
 import os
